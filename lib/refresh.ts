@@ -20,6 +20,12 @@ import { compositeScore, ratingScore, volumeScore } from './scoring';
 import { assignRanks, type RankableSnapshot } from './ranking';
 import type { AgencyCategory, Town } from './supabase/types';
 
+// Hard cap on towns processed per refresh run. Sized so that even in the worst
+// case (40 unique Place Details lookups per town), we stay inside Google's free
+// 10,000-calls-per-SKU-per-month allowance with ~20% headroom. Bump only after
+// confirming the current free-tier maths still holds.
+const MAX_TOWNS = 200;
+
 export type RefreshResult = {
   startedAt: string;
   finishedAt: string;
@@ -27,18 +33,26 @@ export type RefreshResult = {
   townsAttempted: number;
   townsSucceeded: number;
   townsFailed: number;
+  townsSkipped: number;
   perTown: TownResult[];
 };
 
 export type TownResult = {
   slug: string;
-  status: 'ok' | 'error';
+  status: 'ok' | 'error' | 'skipped';
   agenciesProcessed: number;
   agenciesFailed: number;
   error?: string;
 };
 
-export async function runRefresh(): Promise<RefreshResult> {
+export type RefreshOptions = {
+  // When true, refreshes a town even if it already has snapshots for this
+  // month. Costs real Google API calls — only set from explicit human action.
+  force?: boolean;
+};
+
+export async function runRefresh(options: RefreshOptions = {}): Promise<RefreshResult> {
+  const force = options.force ?? false;
   const startedAt = new Date().toISOString();
   const snapshotDate = firstOfCurrentMonth();
   const db = supabaseService();
@@ -46,11 +60,18 @@ export async function runRefresh(): Promise<RefreshResult> {
   const { data: towns, error } = await db.from('towns').select('*');
   if (error) throw new Error(`Failed to load towns: ${error.message}`);
 
+  if ((towns?.length ?? 0) > MAX_TOWNS) {
+    throw new Error(
+      `Refresh aborted: ${towns?.length} towns exceeds MAX_TOWNS=${MAX_TOWNS}. ` +
+        `Raise the cap deliberately after re-checking Google free-tier quotas.`,
+    );
+  }
+
   const perTown: TownResult[] = [];
 
   for (const town of towns ?? []) {
     try {
-      const res = await refreshTown(town, snapshotDate);
+      const res = await refreshTown(town, snapshotDate, force);
       perTown.push(res);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -73,6 +94,8 @@ export async function runRefresh(): Promise<RefreshResult> {
 
   const finishedAt = new Date().toISOString();
   const townsSucceeded = perTown.filter((t) => t.status === 'ok').length;
+  const townsSkipped = perTown.filter((t) => t.status === 'skipped').length;
+  const townsFailed = perTown.filter((t) => t.status === 'error').length;
 
   return {
     startedAt,
@@ -80,13 +103,29 @@ export async function runRefresh(): Promise<RefreshResult> {
     snapshotDate,
     townsAttempted: perTown.length,
     townsSucceeded,
-    townsFailed: perTown.length - townsSucceeded,
+    townsFailed,
+    townsSkipped,
     perTown,
   };
 }
 
-async function refreshTown(town: Town, snapshotDate: string): Promise<TownResult> {
+async function refreshTown(town: Town, snapshotDate: string, force: boolean): Promise<TownResult> {
   const db = supabaseService();
+
+  if (!force && (await hasSnapshotForMonth(town.id, snapshotDate))) {
+    await logRefresh({
+      townId: town.id,
+      level: 'info',
+      stage: 'skip',
+      message: `Skipping ${town.name}: snapshot already exists for ${snapshotDate}`,
+    });
+    return {
+      slug: town.slug,
+      status: 'skipped',
+      agenciesProcessed: 0,
+      agenciesFailed: 0,
+    };
+  }
 
   await logRefresh({ townId: town.id, level: 'info', stage: 'start', message: `Refreshing ${town.name}` });
 
@@ -195,6 +234,18 @@ function categorise(
     }
   }
   return result;
+}
+
+async function hasSnapshotForMonth(townId: string, snapshotDate: string): Promise<boolean> {
+  const db = supabaseService();
+  const { data, error } = await db
+    .from('agency_snapshots')
+    .select('id, agencies!inner(town_id)')
+    .eq('snapshot_date', snapshotDate)
+    .eq('agencies.town_id', townId)
+    .limit(1);
+  if (error) throw new Error(`hasSnapshotForMonth failed: ${error.message}`);
+  return (data?.length ?? 0) > 0;
 }
 
 async function upsertAgency(args: {

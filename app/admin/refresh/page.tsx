@@ -9,9 +9,10 @@ type RefreshResponse = {
   townsAttempted?: number;
   townsSucceeded?: number;
   townsFailed?: number;
+  townsSkipped?: number;
   perTown?: Array<{
     slug: string;
-    status: 'ok' | 'error';
+    status: 'ok' | 'error' | 'skipped';
     agenciesProcessed: number;
     agenciesFailed: number;
     error?: string;
@@ -21,6 +22,7 @@ type RefreshResponse = {
 
 export default function AdminRefreshPage() {
   const [password, setPassword] = useState('');
+  const [force, setForce] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<RefreshResponse | null>(null);
 
@@ -31,7 +33,7 @@ export default function AdminRefreshPage() {
       const res = await fetch('/api/admin/refresh', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ password, force }),
       });
       const json = (await res.json()) as RefreshResponse;
       setResult(json);
@@ -46,9 +48,10 @@ export default function AdminRefreshPage() {
     <main className="mx-auto max-w-prose px-6 py-16">
       <h1 className="font-serif text-3xl">Manual refresh</h1>
       <p className="mt-4 text-charcoal-soft">
-        Triggers the same job as the monthly cron. Pulls all towns from
-        Supabase and writes a fresh snapshot for today&apos;s month. Safe to
-        re-run — snapshots are upserted by (agency_id, snapshot_date).
+        Triggers the same job as the monthly cron. By default, towns that
+        already have a snapshot for the current month are skipped so you
+        don&apos;t re-bill Google. Tick &ldquo;force&rdquo; only if you need
+        to deliberately re-run an already-completed month.
       </p>
 
       <div className="mt-8 flex flex-col gap-3">
@@ -62,6 +65,15 @@ export default function AdminRefreshPage() {
           className="rounded-md border border-rule bg-white px-4 py-3 font-mono text-sm focus:border-forest focus:outline-none"
           placeholder="ADMIN_PASSWORD"
         />
+        <label className="mt-2 flex items-center gap-2 text-sm text-charcoal-soft">
+          <input
+            type="checkbox"
+            checked={force}
+            onChange={(e) => setForce(e.target.checked)}
+            className="h-4 w-4 rounded border-rule"
+          />
+          Force re-run (re-bills Google API for towns already done this month)
+        </label>
         <button
           type="button"
           onClick={handleRun}

@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'admin disabled' }, { status: 503 });
   }
 
-  let body: { password?: string };
+  let body: { password?: string; force?: boolean };
   try {
     body = await request.json();
   } catch {
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const result = await runRefresh();
+    const result = await runRefresh({ force: body.force === true });
     return NextResponse.json(result);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

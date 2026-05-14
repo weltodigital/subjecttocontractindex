@@ -100,7 +100,7 @@ Magic-link flow:
 3. If subscriber has 1+ referrals: token written to `auth_tokens` (15-min TTL), email sent via Resend.
 4. User clicks link → `GET /api/auth/verify?token=…` re-verifies Beehiiv status, marks token used, sets a 30-day iron-session cookie, redirects to `/towns/brighton`.
 
-Preview mode is enforced page-side in `/towns/[slug]` and `/agencies/[place_id]` by reading the session and passing a `previewLimit` to the ranking table. Top 3 in each category remain visible; ranks 4+ have score, rating, reviews and trend blurred. This pattern keeps the SEO-visible page intact while gating value.
+Preview mode is enforced page-side in `/towns/[slug]` and `/agencies/[place_id]` by reading the session and passing a `previewLimit` to the ranking table. Only rank #1 in each category remains visible; ranks 2+ have score, rating, reviews and trend blurred. This pattern keeps the SEO-visible page intact while gating value.
 
 ## Deployment
 

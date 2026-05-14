@@ -13,7 +13,7 @@ import { getSession } from '@/lib/session';
 // applied to the underlying data fetches via Supabase's CDN.
 export const dynamic = 'force-dynamic';
 
-const PREVIEW_LIMIT = 3;
+const PREVIEW_LIMIT = 1;
 
 export async function generateMetadata({
   params,

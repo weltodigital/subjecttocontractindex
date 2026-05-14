@@ -47,7 +47,7 @@ export function RankingTable({
                     </td>
                     <td className="px-4 py-3">
                       {gated ? (
-                        <span className="font-medium text-charcoal-soft">
+                        <span className="select-none font-medium text-charcoal-soft blur-sm">
                           {row.name}
                         </span>
                       ) : (

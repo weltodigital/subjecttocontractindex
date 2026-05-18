@@ -187,9 +187,8 @@ export default async function AgencyPage({
           </h2>
           <p className="mt-3 max-w-prose text-body text-charcoal-soft">
             Volume and recency together account for 40% of the composite
-            score. Grow Our Reviews is the tool we built to help agents
-            capture more Google reviews — automated requests, smart timing,
-            no chasing.
+            score. Grow Our Reviews is the tool that helps agents capture more
+            Google reviews — automated requests, smart timing, no chasing.
           </p>
           <a
             href="https://www.growourreviews.com/"

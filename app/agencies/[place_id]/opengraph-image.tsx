@@ -4,7 +4,7 @@ export const runtime = 'nodejs';
 export const contentType = 'image/png';
 export const size = { width: 1200, height: 630 };
 
-export default function TownOgImage() {
+export default function AgencyOgImage() {
   return new ImageResponse(
     (
       <div

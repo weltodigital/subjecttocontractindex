@@ -178,6 +178,29 @@ export default async function AgencyPage({
           </section>
         )}
 
+        <section className="mt-10 rounded-lg border border-rule bg-cream p-6 sm:p-8">
+          <p className="text-sm uppercase tracking-wide text-muted">
+            Are you the owner of this listing?
+          </p>
+          <h2 className="mt-2 font-serif text-xl text-forest">
+            Want to climb the rankings?
+          </h2>
+          <p className="mt-3 max-w-prose text-body text-charcoal-soft">
+            Volume and recency together account for 40% of the composite
+            score. Grow Our Reviews is the tool we built to help agents
+            capture more Google reviews — automated requests, smart timing,
+            no chasing.
+          </p>
+          <a
+            href="https://www.growourreviews.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-5 inline-flex items-center justify-center rounded-md bg-forest px-5 py-3 text-sm font-medium text-cream hover:bg-forest-soft"
+          >
+            Try Grow Our Reviews ↗
+          </a>
+        </section>
+
         {agency.town && (
           <p className="mt-12 text-sm">
             <Link

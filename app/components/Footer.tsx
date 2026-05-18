@@ -23,6 +23,20 @@ export function Footer() {
           </Link>
         </div>
       </div>
+      <div className="mx-auto max-w-page px-6 pb-8 text-xs text-muted">
+        <p>
+          Volume and recency drive 40% of every Index score.{' '}
+          <a
+            href="https://www.growourreviews.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-forest underline-offset-2 hover:underline"
+          >
+            Grow Our Reviews
+          </a>{' '}
+          helps agents capture more Google reviews ↗
+        </p>
+      </div>
     </footer>
   );
 }

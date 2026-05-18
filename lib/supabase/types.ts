@@ -5,6 +5,7 @@ export type Town = {
   slug: string;
   name: string;
   county: string | null;
+  region: string | null;
   latitude: number | null;
   longitude: number | null;
   created_at: string;

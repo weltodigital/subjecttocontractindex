@@ -54,7 +54,7 @@ export default function MethodologyPage() {
         <pre className="mt-4 overflow-auto rounded-md border border-rule bg-white p-5 font-mono text-sm leading-relaxed">
 {`ratingScore  = averageRating * 20                   // 5.0 -> 100
 volumeScore  = min(100, log10(reviewCount + 1) * 33.33)
-recencyScore = bucketed from the 5 most recent reviews
+recencyScore = bucketed from the 5 reviews Google surfaces per agency
 
 compositeScore = (ratingScore * 0.6)
               + (volumeScore * 0.2)
@@ -99,12 +99,16 @@ compositeScore = (ratingScore * 0.6)
         <h2 className="mt-12 font-serif text-2xl text-forest">Limitations</h2>
         <ul className="mt-3 space-y-2 pl-5 [list-style:disc]">
           <li>
-            <strong>Recency is an approximation.</strong> Google&apos;s API
-            only returns the 5 most recent reviews per agency. We can&apos;t
-            see the timestamps of older reviews. The recency score is therefore
-            bucketed off those 5 — five fresh reviews in the last 6 months
-            scores 85, five fresh in 12 months scores 70, and so on down to 0.
-            It&apos;s a defensible proxy, not a perfect measurement.
+            <strong>Recency is an approximation.</strong> Google&apos;s
+            Places API returns up to 5 reviews per agency, sorted by
+            Google&apos;s own &ldquo;relevance&rdquo; algorithm — a mix
+            of recent and high-engagement reviews, not strictly the
+            newest five. We bucket the recency score from whichever 5
+            Google surfaces: five inside the last 6 months scores 85,
+            five inside 12 months scores 70, and so on down to 0. In
+            practice the surfaced reviews skew recent, so the bucket is
+            a reasonable signal of how active a profile is right now —
+            but it&apos;s a defensible proxy, not a perfect measurement.
           </li>
           <li>
             <strong>Agencies without Google Business profiles don&apos;t appear.</strong>{' '}

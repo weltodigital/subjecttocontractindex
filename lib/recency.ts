@@ -1,9 +1,11 @@
 /**
  * Recency approximation.
  *
- * Google Place Details only returns the 5 most recent reviews. We bucket
- * the recency_score off how many of those 5 fall inside specific windows.
- * Documented in /methodology so the limitation is visible.
+ * Google Place Details returns up to 5 reviews, sorted by Google's
+ * "relevance" algorithm (not strictly chronological). We bucket the
+ * recency_score off how many of those 5 fall inside specific windows —
+ * a defensible proxy for how active the profile is right now.
+ * Limitation documented on /methodology.
  */
 
 export type GoogleReview = {

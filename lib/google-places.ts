@@ -5,7 +5,8 @@
  * headers. Enable "Places API (New)" in the Google Cloud project.
  *
  * - Text Search: POST /v1/places:searchText (returns up to 20 places).
- * - Place Details: GET /v1/places/{place_id} (returns 5 most-recent reviews).
+ * - Place Details: GET /v1/places/{place_id} (returns up to 5 reviews;
+ *   v1 sorts by Google's relevance algorithm, not strictly newest-first).
  *
  * Built-in retry with exponential backoff (3 attempts) and a 100ms delay
  * between requests to stay polite at scale.

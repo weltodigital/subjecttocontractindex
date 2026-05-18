@@ -4,7 +4,10 @@ import { Header } from '@/app/components/Header';
 import { Footer } from '@/app/components/Footer';
 import { TownSearch } from '@/app/components/TownSearch';
 
-export const revalidate = 3600;
+// Towns can be added between deploys. 60s ISR keeps the homepage
+// statically renderable (good for SEO) while letting new towns show up
+// almost immediately after a migration.
+export const revalidate = 60;
 
 export default async function HomePage() {
   const db = supabaseAnon();

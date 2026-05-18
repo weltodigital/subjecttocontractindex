@@ -77,7 +77,7 @@ export function TownSearch({ initialTowns }: { initialTowns: TownOption[] }) {
 
       {open && query.trim() && matches.length === 0 && (
         <div className="absolute left-0 right-0 z-10 mt-2 rounded-md border border-rule bg-white px-5 py-3 text-sm text-muted shadow-lg">
-          No town found. We currently cover Brighton — more added monthly.
+          No town found. We add more towns each month.
         </div>
       )}
     </div>

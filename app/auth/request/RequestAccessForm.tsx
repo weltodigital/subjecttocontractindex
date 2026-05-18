@@ -7,11 +7,7 @@ type FormState =
   | { kind: 'loading' }
   | { kind: 'email_sent' }
   | { kind: 'not_subscribed' }
-  | {
-      kind: 'no_referrals';
-      referralLink: string | null;
-      referralCount: number;
-    }
+  | { kind: 'no_referrals'; referralCount: number }
   | { kind: 'error'; message: string };
 
 export function RequestAccessForm() {
@@ -29,7 +25,6 @@ export function RequestAccessForm() {
       });
       const json = (await res.json()) as {
         status?: 'email_sent' | 'not_subscribed' | 'no_referrals';
-        referral_link?: string | null;
         referral_count?: number;
         error?: string;
       };
@@ -41,7 +36,6 @@ export function RequestAccessForm() {
       } else if (json.status === 'no_referrals') {
         setState({
           kind: 'no_referrals',
-          referralLink: json.referral_link ?? null,
           referralCount: json.referral_count ?? 0,
         });
       } else {
@@ -99,21 +93,9 @@ export function RequestAccessForm() {
         <p className="mt-2 text-charcoal-soft">
           Refer just 1 colleague to Subject To Contract to unlock the Index.
           You currently have {state.referralCount} referral
-          {state.referralCount === 1 ? '' : 's'}.
+          {state.referralCount === 1 ? '' : 's'}. Your share link comes
+          with every weekly newsletter.
         </p>
-        {state.referralLink && (
-          <div className="mt-5">
-            <label className="text-sm font-medium text-charcoal-soft">
-              Your unique referral link
-            </label>
-            <input
-              readOnly
-              value={state.referralLink}
-              className="mt-2 w-full rounded-md border border-rule bg-cream px-4 py-3 font-mono text-sm"
-              onFocus={(e) => e.currentTarget.select()}
-            />
-          </div>
-        )}
       </div>
     );
   }

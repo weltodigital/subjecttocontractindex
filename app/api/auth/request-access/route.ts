@@ -32,7 +32,6 @@ export async function POST(request: Request) {
     if (status.kind === 'no_referrals') {
       return NextResponse.json({
         status: 'no_referrals',
-        referral_link: status.referralLink,
         referral_count: status.referralCount,
       });
     }

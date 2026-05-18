@@ -13,7 +13,7 @@ const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 export type SubscriberStatus =
   | { kind: 'not_subscribed' }
-  | { kind: 'no_referrals'; referralCount: number; referralLink: string | null }
+  | { kind: 'no_referrals'; referralCount: number }
   | { kind: 'has_access'; referralCount: number };
 
 export async function getSubscriberStatus(
@@ -64,7 +64,6 @@ function statusFromCache(args: {
   hasAccess: boolean;
   referralCount: number;
   subscriptionId: string | null;
-  referralLink?: string | null;
 }): SubscriberStatus {
   if (!args.subscriptionId) {
     return { kind: 'not_subscribed' };
@@ -75,7 +74,6 @@ function statusFromCache(args: {
   return {
     kind: 'no_referrals',
     referralCount: args.referralCount,
-    referralLink: args.referralLink ?? null,
   };
 }
 
@@ -83,7 +81,6 @@ type BeehiivFetched = {
   hasAccess: boolean;
   referralCount: number;
   subscriptionId: string | null;
-  referralLink: string | null;
 };
 
 async function fetchFromBeehiiv(email: string): Promise<BeehiivFetched> {
@@ -114,7 +111,6 @@ async function fetchFromBeehiiv(email: string): Promise<BeehiivFetched> {
       hasAccess: false,
       referralCount: 0,
       subscriptionId: null,
-      referralLink: null,
     };
   }
 
@@ -136,7 +132,6 @@ async function fetchFromBeehiiv(email: string): Promise<BeehiivFetched> {
       hasAccess: false,
       referralCount: 0,
       subscriptionId: null,
-      referralLink: null,
     };
   }
 
@@ -145,6 +140,5 @@ async function fetchFromBeehiiv(email: string): Promise<BeehiivFetched> {
     hasAccess: referralCount >= 1,
     referralCount,
     subscriptionId: sub.id,
-    referralLink: null,
   };
 }

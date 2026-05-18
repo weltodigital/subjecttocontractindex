@@ -35,6 +35,14 @@ export type RefreshResult = {
   townsFailed: number;
   townsSkipped: number;
   perTown: TownResult[];
+  // Chunking metadata. When the towns table has more rows than the chunk
+  // can fit, the caller (cron / admin route) is expected to fire the next
+  // chunk via a self-call.
+  totalTowns: number;
+  chunkOffset: number;
+  chunkLimit: number;
+  hasMore: boolean;
+  nextOffset: number | null;
 };
 
 export type TownResult = {
@@ -49,15 +57,22 @@ export type RefreshOptions = {
   // When true, refreshes a town even if it already has snapshots for this
   // month. Costs real Google API calls — only set from explicit human action.
   force?: boolean;
+  // Zero-based index into the alphabetically-ordered towns list. The cron
+  // and admin routes pass these to process the table in chunks small enough
+  // to fit inside Vercel's serverless function timeout.
+  offset?: number;
+  limit?: number;
 };
 
 export async function runRefresh(options: RefreshOptions = {}): Promise<RefreshResult> {
   const force = options.force ?? false;
+  const offset = options.offset ?? 0;
+  const limit = options.limit ?? Number.MAX_SAFE_INTEGER;
   const startedAt = new Date().toISOString();
   const snapshotDate = firstOfCurrentMonth();
   const db = supabaseService();
 
-  const { data: towns, error } = await db.from('towns').select('*');
+  const { data: towns, error } = await db.from('towns').select('*').order('slug');
   if (error) throw new Error(`Failed to load towns: ${error.message}`);
 
   if ((towns?.length ?? 0) > MAX_TOWNS) {
@@ -67,9 +82,11 @@ export async function runRefresh(options: RefreshOptions = {}): Promise<RefreshR
     );
   }
 
+  const totalTowns = towns?.length ?? 0;
+  const chunk = (towns ?? []).slice(offset, offset + limit);
   const perTown: TownResult[] = [];
 
-  for (const town of towns ?? []) {
+  for (const town of chunk) {
     try {
       const res = await refreshTown(town, snapshotDate, force);
       perTown.push(res);
@@ -96,6 +113,8 @@ export async function runRefresh(options: RefreshOptions = {}): Promise<RefreshR
   const townsSucceeded = perTown.filter((t) => t.status === 'ok').length;
   const townsSkipped = perTown.filter((t) => t.status === 'skipped').length;
   const townsFailed = perTown.filter((t) => t.status === 'error').length;
+  const processed = offset + chunk.length;
+  const hasMore = processed < totalTowns;
 
   return {
     startedAt,
@@ -106,6 +125,11 @@ export async function runRefresh(options: RefreshOptions = {}): Promise<RefreshR
     townsFailed,
     townsSkipped,
     perTown,
+    totalTowns,
+    chunkOffset: offset,
+    chunkLimit: limit,
+    hasMore,
+    nextOffset: hasMore ? processed : null,
   };
 }
 

@@ -10,6 +10,11 @@ type RefreshResponse = {
   townsSucceeded?: number;
   townsFailed?: number;
   townsSkipped?: number;
+  totalTowns?: number;
+  chunkOffset?: number;
+  chunkLimit?: number;
+  hasMore?: boolean;
+  nextOffset?: number | null;
   perTown?: Array<{
     slug: string;
     status: 'ok' | 'error' | 'skipped';
@@ -48,10 +53,13 @@ export default function AdminRefreshPage() {
     <main className="mx-auto max-w-prose px-6 py-16">
       <h1 className="font-serif text-3xl">Manual refresh</h1>
       <p className="mt-4 text-charcoal-soft">
-        Triggers the same job as the monthly cron. By default, towns that
-        already have a snapshot for the current month are skipped so you
-        don&apos;t re-bill Google. Tick &ldquo;force&rdquo; only if you need
-        to deliberately re-run an already-completed month.
+        Triggers the same job as the monthly cron. The job runs in chunks
+        of 8 towns per Vercel function call and self-chains until every
+        town is done — so this response shows only the first chunk; the
+        rest land in <code>refresh_log</code> as they complete. By
+        default, towns that already have a snapshot for the current month
+        are skipped so you don&apos;t re-bill Google. Tick &ldquo;force&rdquo;
+        only if you need to deliberately re-run an already-completed month.
       </p>
 
       <div className="mt-8 flex flex-col gap-3">
@@ -84,8 +92,17 @@ export default function AdminRefreshPage() {
         </button>
       </div>
 
+      {result && result.hasMore && (
+        <div className="mt-8 rounded-md border border-forest/20 bg-forest/5 p-4 text-sm">
+          Processed towns {result.chunkOffset! + 1}&ndash;
+          {result.chunkOffset! + (result.perTown?.length ?? 0)} of{' '}
+          {result.totalTowns}. Remaining chunks are running in the
+          background — watch <code>refresh_log</code> for completion.
+        </div>
+      )}
+
       {result && (
-        <pre className="mt-8 overflow-auto rounded-md border border-rule bg-white p-4 font-mono text-xs">
+        <pre className="mt-4 overflow-auto rounded-md border border-rule bg-white p-4 font-mono text-xs">
           {JSON.stringify(result, null, 2)}
         </pre>
       )}

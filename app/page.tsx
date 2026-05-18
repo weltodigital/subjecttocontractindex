@@ -34,7 +34,7 @@ export default async function HomePage() {
           </div>
 
           <p className="mt-4 text-sm text-muted">
-            Currently covering Brighton. More towns added monthly.
+            Covering {towns?.length ?? 0} UK towns. More added each month.
           </p>
 
           <p className="mt-10 text-sm">

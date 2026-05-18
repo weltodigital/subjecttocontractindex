@@ -19,7 +19,7 @@ export function UnlockBanner({
           href="/auth/request"
           className="mt-5 inline-flex items-center justify-center rounded-md bg-forest px-5 py-3 text-sm font-medium text-cream hover:bg-forest-soft"
         >
-          Unlock the Index &rarr;
+          Unlock the Index →
         </Link>
       </section>
     );

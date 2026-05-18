@@ -107,7 +107,7 @@ export default async function AgencyPage({
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center rounded-md border border-forest bg-forest px-5 py-3 text-sm font-medium text-cream hover:bg-forest-soft"
                 >
-                  View on Google &nearr;
+                  View on Google ↗
                 </a>
               )}
             </div>
@@ -170,7 +170,7 @@ export default async function AgencyPage({
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center rounded-md border border-forest bg-forest px-5 py-3 text-sm font-medium text-cream hover:bg-forest-soft"
                 >
-                  View on Google &nearr;
+                  View on Google ↗
                 </a>
               )}
             </div>
@@ -184,7 +184,7 @@ export default async function AgencyPage({
               href={`/towns/${agency.town.slug}`}
               className="text-forest underline-offset-4 hover:underline"
             >
-              &larr; Other agencies in {agency.town.name}
+              ← Other agencies in {agency.town.name}
             </Link>
           </p>
         )}

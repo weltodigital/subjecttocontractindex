@@ -28,7 +28,7 @@ export default async function NotFound() {
         </div>
         <p className="mt-8 text-sm">
           <Link href="/" className="text-forest underline-offset-4 hover:underline">
-            &larr; Back to home
+            ← Back to home
           </Link>
         </p>
       </main>

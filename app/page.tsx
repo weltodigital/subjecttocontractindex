@@ -39,7 +39,7 @@ export default async function HomePage() {
               href="/methodology"
               className="text-forest underline-offset-4 hover:underline"
             >
-              How we score &rarr;
+              How we score →
             </Link>
           </p>
         </section>

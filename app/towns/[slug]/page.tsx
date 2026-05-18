@@ -99,7 +99,7 @@ export default async function TownPage({
             href="/methodology"
             className="text-forest underline-offset-4 hover:underline"
           >
-            Read our methodology &rarr;
+            Read our methodology →
           </Link>
         </p>
       </main>

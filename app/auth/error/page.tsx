@@ -41,7 +41,7 @@ export default function AuthErrorPage({
             href="/auth/request"
             className="text-forest underline-offset-4 hover:underline"
           >
-            Request a new link &rarr;
+            Request a new link →
           </Link>
         </p>
       </main>

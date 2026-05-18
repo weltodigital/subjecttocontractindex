@@ -15,13 +15,17 @@ export async function sendMagicLink(args: {
 
   const resend = new Resend(apiKey);
 
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: `Subject To Contract <${from}>`,
     to: args.to,
     subject: 'Your access link for the UK Estate Agent Index',
     text: textBody(args.url),
     html: htmlBody(args.url),
   });
+
+  if (error) {
+    throw new Error(`Resend send failed: ${error.message ?? JSON.stringify(error)}`);
+  }
 }
 
 function textBody(url: string): string {

@@ -88,15 +88,21 @@ type BeehiivFetched = {
 
 async function fetchFromBeehiiv(email: string): Promise<BeehiivFetched> {
   const apiKey = process.env.BEEHIIV_API_KEY;
-  const pubId = process.env.BEEHIIV_PUBLICATION_ID;
+  const rawPubId = process.env.BEEHIIV_PUBLICATION_ID;
 
-  if (!apiKey || !pubId) {
+  if (!apiKey || !rawPubId) {
     throw new Error('Beehiiv API not configured');
   }
 
-  const url = `${BEEHIIV_BASE}/publications/${pubId}/subscriptions/by_email/${encodeURIComponent(
-    email,
-  )}`;
+  // Beehiiv expects publication IDs in the form `pub_<uuid>`. Accept either the
+  // prefixed or bare form in the env var to avoid copy-paste bugs.
+  const pubId = rawPubId.startsWith('pub_') ? rawPubId : `pub_${rawPubId}`;
+
+  // expand[]=referrals returns the array of subscribers this person has
+  // referred. Its length is the referral count.
+  const url =
+    `${BEEHIIV_BASE}/publications/${pubId}/subscriptions/by_email/` +
+    `${encodeURIComponent(email)}?expand[]=referrals`;
 
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${apiKey}` },
@@ -120,8 +126,7 @@ async function fetchFromBeehiiv(email: string): Promise<BeehiivFetched> {
     data?: {
       id: string;
       status: string;
-      referrals?: number;
-      referral_link?: string;
+      referrals?: Array<{ id: string; status: string }>;
     };
   };
 
@@ -135,11 +140,11 @@ async function fetchFromBeehiiv(email: string): Promise<BeehiivFetched> {
     };
   }
 
-  const referralCount = sub.referrals ?? 0;
+  const referralCount = sub.referrals?.length ?? 0;
   return {
     hasAccess: referralCount >= 1,
     referralCount,
     subscriptionId: sub.id,
-    referralLink: sub.referral_link ?? null,
+    referralLink: null,
   };
 }

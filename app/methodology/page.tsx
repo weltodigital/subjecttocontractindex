@@ -3,9 +3,10 @@ import { Header } from '@/app/components/Header';
 import { Footer } from '@/app/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'Methodology',
+  title: 'How We Rank UK Estate Agents — Methodology',
   description:
     'How the UK Estate Agent Index ranks estate and letting agencies — formula, weighting, and limitations.',
+  alternates: { canonical: '/methodology' },
 };
 
 export default function MethodologyPage() {

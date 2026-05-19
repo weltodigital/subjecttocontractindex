@@ -20,12 +20,17 @@ export async function generateMetadata({
   params: { place_id: string };
 }): Promise<Metadata> {
   const detail = await getAgencyDetail(params.place_id);
-  if (!detail) return { title: 'Agency not found' };
+  if (!detail) return { title: 'Agency not found', robots: { index: false } };
+  const { agency } = detail;
+  const title = agency.town
+    ? `${agency.name} — ${agency.town.name} Estate Agent Reviews`
+    : `${agency.name} — Estate Agent Reviews`;
   return {
-    title: detail.agency.name,
-    description: detail.agency.town
-      ? `${detail.agency.name} in ${detail.agency.town.name} — score, rating and review history from the UK Estate Agent Index.`
-      : detail.agency.name,
+    title,
+    description: agency.town
+      ? `${agency.name} in ${agency.town.name} — score, rating and review history from the UK Estate Agent Index.`
+      : `${agency.name} — score, rating and review history from the UK Estate Agent Index.`,
+    alternates: { canonical: `/agencies/${agency.placeId}` },
   };
 }
 
@@ -65,8 +70,13 @@ export default async function AgencyPage({
         <h1 className="mt-2 font-serif text-3xl text-forest sm:text-4xl">
           {agency.name}
         </h1>
+        {agency.town && (
+          <p className="mt-2 text-lg text-charcoal-soft">
+            Estate Agent in {agency.town.name}
+          </p>
+        )}
         {agency.address && (
-          <p className="mt-2 text-charcoal-soft">{agency.address}</p>
+          <p className="mt-1 text-charcoal-soft">{agency.address}</p>
         )}
 
         <div className="mt-4 flex flex-wrap items-center gap-2">

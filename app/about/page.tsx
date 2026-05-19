@@ -1,16 +1,33 @@
 import type { Metadata } from 'next';
 import { Header } from '@/app/components/Header';
 import { Footer } from '@/app/components/Footer';
+import { StructuredData } from '@/app/components/StructuredData';
 
 export const metadata: Metadata = {
-  title: 'About',
+  title: 'About the UK Estate Agent Index',
   description:
-    'About the UK Estate Agent Index — an independent ranking project by Subject To Contract.',
+    'About the UK Estate Agent Index — an independent monthly ranking of UK estate and letting agencies, by Subject To Contract.',
+  alternates: { canonical: '/about' },
+};
+
+const organisationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'UK Estate Agent Index',
+  url: 'https://index.subjecttocontract.com',
+  description:
+    'Independent monthly rankings of UK estate and letting agencies, scored on Google reviews.',
+  parentOrganization: {
+    '@type': 'Organization',
+    name: 'Subject To Contract',
+    url: 'https://subjecttocontract.com',
+  },
 };
 
 export default function AboutPage() {
   return (
     <>
+      <StructuredData data={organisationSchema} />
       <Header />
       <main className="mx-auto max-w-prose px-6 pt-12 pb-8 sm:pt-16">
         <p className="text-sm uppercase tracking-wide text-muted">

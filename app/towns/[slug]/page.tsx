@@ -21,10 +21,11 @@ export async function generateMetadata({
   params: { slug: string };
 }): Promise<Metadata> {
   const ranking = await getTownRanking(params.slug);
-  if (!ranking) return { title: 'Town not found' };
+  if (!ranking) return { title: 'Town not found', robots: { index: false } };
   return {
     title: `Best Estate Agents in ${ranking.town.name}`,
     description: `Monthly ranking of estate and letting agents in ${ranking.town.name}, scored on Google reviews.`,
+    alternates: { canonical: `/towns/${ranking.town.slug}` },
   };
 }
 
@@ -57,7 +58,7 @@ export default async function TownPage({
             UK Estate Agent Index
           </p>
           <h1 className="mt-2 font-serif text-3xl text-forest sm:text-4xl">
-            Estate Agents in {ranking.town.name}
+            Best Estate Agents in {ranking.town.name}
           </h1>
           {updatedLabel && (
             <p className="mt-2 text-sm text-charcoal-soft">

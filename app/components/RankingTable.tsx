@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { TrendIndicator } from './TrendIndicator';
 import type { RankRow } from '@/lib/queries';
 
+const TABLE_COL_COUNT = 6;
+
 export function RankingTable({
   title,
   rows,
@@ -14,6 +16,13 @@ export function RankingTable({
   /** If set, ranks above this number are shown blurred. */
   previewLimit?: number;
 }) {
+  // Rank of the first gated row, if any. The unlock CTA replaces this row so
+  // the prompt sits right where users hit the paywall instead of at the
+  // bottom of the table.
+  const firstGatedRank =
+    previewLimit != null
+      ? rows.find((r) => r.rank > previewLimit)?.rank ?? null
+      : null;
   return (
     <section>
       <h2 className="font-serif text-2xl text-forest">{title}</h2>
@@ -40,6 +49,9 @@ export function RankingTable({
               {rows.map((row) => {
                 const gated =
                   previewLimit != null && row.rank > previewLimit;
+                if (gated && row.rank === firstGatedRank) {
+                  return <UnlockCtaRow key={row.agencyId} rank={row.rank} />;
+                }
                 return (
                   <tr key={row.agencyId} className="hover:bg-cream/60">
                     <td className="px-4 py-3 font-medium text-muted">
@@ -113,5 +125,29 @@ export function RankingTable({
         </div>
       )}
     </section>
+  );
+}
+
+function UnlockCtaRow({ rank }: { rank: number }) {
+  return (
+    <tr className="bg-forest/5">
+      <td className="px-4 py-4 font-medium text-muted align-top">{rank}</td>
+      <td colSpan={TABLE_COL_COUNT - 1} className="px-4 py-4">
+        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-charcoal-soft">
+            <span className="font-medium text-forest">
+              Unlock the rest of the ranking.
+            </span>{' '}
+            Free for Subject To Contract subscribers.
+          </p>
+          <Link
+            href="/auth/request"
+            className="inline-flex items-center justify-center rounded-md bg-forest px-5 py-2.5 text-sm font-medium text-cream hover:bg-forest-soft"
+          >
+            Unlock the Index →
+          </Link>
+        </div>
+      </td>
+    </tr>
   );
 }
